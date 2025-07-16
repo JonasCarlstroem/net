@@ -1,5 +1,4 @@
 #pragma once
-#include <WinSock2.h>
 #include <iostream>
 #include <net/socket>
 #include <net/socket_registry>

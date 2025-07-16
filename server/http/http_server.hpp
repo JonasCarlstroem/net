@@ -1,6 +1,5 @@
 #pragma once
 #include "http_connection_handler.hpp"
-#include <WinSock2.h>
 #include <atomic>
 #include <mutex>
 #include <net/socket>

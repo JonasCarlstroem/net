@@ -1,5 +1,4 @@
 #pragma once
-#include <WinSock2.h>
 #include <mutex>
 #include <algorithm>
 #include "net_socket.hpp"
