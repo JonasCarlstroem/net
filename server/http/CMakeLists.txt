@@ -8,7 +8,6 @@ set(CMAKE_BUILD_TYPE Debug)
 add_library(http INTERFACE)
 
 target_link_libraries(http
-	INTERFACE nlohmann
 	INTERFACE types
 	INTERFACE utils
 	INTERFACE socket

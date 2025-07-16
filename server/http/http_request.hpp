@@ -2,7 +2,7 @@
 #include "http_method.hpp"
 #include "http_types.hpp"
 #include <sstream>
-#include <string_utils>
+#include <utils/string>
 
 namespace net::http {
 

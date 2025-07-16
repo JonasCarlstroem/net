@@ -57,7 +57,7 @@ class server {
     server() : server(_default_port) {}
     server(int port) : server(_default_ip, port) {}
     server(const string& ip, int port) : ip_(ip), port_(port), router_() {
-        _server_socket = socket_registry.create_socket(ip, port);
+        _server_socket = sock_registry.create_socket(ip, port);
     }
 
     ~server() { stop(); }
@@ -94,22 +94,22 @@ class server {
     }
 
     server& get(const string path, route_handler handler) {
-        router_.register_route(http_method::Get, path, handler);
+        router_.register_route(method::Get, path, handler);
         return *this;
     }
 
     server& post(const string path, route_handler handler) {
-        router_.register_route(http_method::Post, path, handler);
+        router_.register_route(method::Post, path, handler);
         return *this;
     }
 
     server& put(const string path, route_handler handler) {
-        router_.register_route(http_method::Put, path, handler);
+        router_.register_route(method::Put, path, handler);
         return *this;
     }
 
     server& del(const string path, route_handler handler) {
-        router_.register_route(http_method::Delete, path, handler);
+        router_.register_route(method::Delete, path, handler);
         return *this;
     }
 
@@ -132,7 +132,7 @@ class server {
     std::unordered_map<SOCKET, connection_state> conn_state;
     std::mutex conn_state_mutex;
 
-    net::socket_registry socket_registry;
+    net::socket_registry sock_registry;
     std::mutex fd_mutex_;
 
     std::atomic<bool> verbose_;
@@ -142,8 +142,8 @@ class server {
     void accept_connections_alt() {
         int debug_counter = 0;
         while (running_.load()) {
-            socket_registry.drain_closed();
-            net::socket_set read_set = socket_registry.snapshot();
+            sock_registry.drain_closed();
+            net::socket_set read_set = sock_registry.snapshot();
 
             if (!read_set.select())
                 break;
@@ -153,7 +153,7 @@ class server {
 
                 if (s == *_server_socket) {
                     net::sock_ptr client =
-                        socket_registry.create_socket(_server_socket->accept());
+                        sock_registry.create_socket(_server_socket->accept());
                     if (client && client->is_valid()) {
                         if (non_blocking()) {
                             client->non_blocking = true;
@@ -161,14 +161,14 @@ class server {
                             ioctlsocket(*client, FIONBIO, &mode);
                         }
 
-                        socket_registry.add(std::move(client));
+                        sock_registry.add(std::move(client));
                     }
                 } else {
-                    if (socket_registry.is_in_progress(s))
+                    if (sock_registry.is_in_progress(s))
                         continue;
-                    socket_registry.set_in_progress(s);
+                    sock_registry.set_in_progress(s);
 
-                    net::sock_ptr client = socket_registry.get(s);
+                    net::sock_ptr client = sock_registry.get(s);
 
                     if (client && client->is_valid()) {
                         auto& state  = conn_state[s];
@@ -183,13 +183,13 @@ class server {
                             pool_.enqueue(
                                 [this, s, client,
                                  data = std::move(request_data)]() mutable {
-                                    http_connection_handler handler(
+                                    connection_handler handler(
                                         client, router_
                                     );
                                     handler.handle(data);
 
-                                    socket_registry.mark_closed(s);
-                                    socket_registry.remove_in_progress(s);
+                                    sock_registry.mark_closed(s);
+                                    sock_registry.remove_in_progress(s);
                                 }
                             );
                         }
@@ -211,10 +211,10 @@ class server {
     }
 
     void cleanup(SOCKET s) {
-        socket_registry.mark_closed(s);
+        sock_registry.mark_closed(s);
         std::lock_guard lock(conn_state_mutex);
         conn_state.erase(s);
-        socket_registry.remove_in_progress(s);
+        sock_registry.remove_in_progress(s);
     }
 };
 

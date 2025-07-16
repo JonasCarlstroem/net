@@ -3,6 +3,7 @@
 #include <sstream>
 #include <utils/net>
 #include "../http_types.hpp"
+#include "../http_method.hpp"
 
 namespace net::http {
 

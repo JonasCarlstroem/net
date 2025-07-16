@@ -2,7 +2,7 @@
 #include <WinSock2.h>
 #include <mutex>
 #include <algorithm>
-#include <socket>
+#include "net_socket.hpp"
 
 namespace net {
 

@@ -1,8 +1,7 @@
 #pragma once
 #include <sstream>
-#include <string_utils>
+#include <utils/string>
 #include <types>
-//#include <nlohmann/json>
 #include "http_status.hpp"
 
 using json = nlohmann::json;
@@ -21,7 +20,7 @@ class response {
 
   private:
     string version_ = "HTTP/1.1";
-    http_status status_;
+    status status_;
     string_map headers_;
     list<char> body_;
 
