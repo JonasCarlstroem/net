@@ -1,14 +1,15 @@
 #pragma once
-#include "http_connection_handler.hpp"
+// std
 #include <atomic>
 #include <mutex>
-#include <net/socket>
-#include <net/socket_registry>
 #include <stdexcept>
 #include <thread>
-#include <threading/thread_pool>
 #include <unordered_map>
 #include <unordered_set>
+
+// lib
+#include <threading/thread_pool>
+#include "http_connection_handler.hpp"
 
 namespace net::http {
 
@@ -34,9 +35,7 @@ struct connection_state {
         }
     }
 
-    bool is_request_complete() const {
-        return buffer.find("\r\n\r\n") != string::npos;
-    }
+    bool is_request_complete() const { return buffer.find("\r\n\r\n") != string::npos; }
 
     string take_request() {
         string req = std::move(buffer);
@@ -67,8 +66,7 @@ class server {
 
     void start(const string& ip, int port) {
         if (!_server_socket->listen(ip, port)) {
-            std::cerr << "Failed to listen on socket "
-                      << net::get_socket_error() << std::endl;
+            std::cerr << "Failed to listen on socket " << net::get_socket_error() << std::endl;
             exit(1);
         }
 
@@ -151,8 +149,7 @@ class server {
                 SOCKET s = read_set.get(i);
 
                 if (s == *_server_socket) {
-                    net::sock_ptr client =
-                        sock_registry.create_socket(_server_socket->accept());
+                    net::sock_ptr client = sock_registry.create_socket(_server_socket->accept());
                     if (client && client->is_valid()) {
                         if (non_blocking()) {
                             client->non_blocking = true;
@@ -180,17 +177,13 @@ class server {
                             string request_data = state.take_request();
 
                             pool_.enqueue(
-                                [this, s, client,
-                                 data = std::move(request_data)]() mutable {
-                                    connection_handler handler(
-                                        client, router_
-                                    );
+                                [this, s, client, data = std::move(request_data)]() mutable {
+                                    connection_handler handler(client, router_);
                                     handler.handle(data);
 
                                     sock_registry.mark_closed(s);
                                     sock_registry.remove_in_progress(s);
-                                }
-                            );
+                                });
                         }
                     }
                 }
@@ -203,10 +196,8 @@ class server {
             return;
 
         running_ = true;
-        std::cout << "Server running on host: " << _server_socket->host()
-                  << std::endl;
-        accept_thread_ =
-            std::thread(&server::accept_connections_alt, this);
+        std::cout << "Server running on host: " << _server_socket->host() << std::endl;
+        accept_thread_ = std::thread(&server::accept_connections_alt, this);
     }
 
     void cleanup(SOCKET s) {
@@ -217,4 +208,4 @@ class server {
     }
 };
 
-} // namespace http
+} // namespace net::http

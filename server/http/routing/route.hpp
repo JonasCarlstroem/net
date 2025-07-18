@@ -1,9 +1,12 @@
 #pragma once
-#include <types>
+// std
 #include <sstream>
+#include <types>
+
+// lib
 #include <utils/net>
-#include "../http_types.hpp"
 #include "../http_method.hpp"
+#include "../http_types.hpp"
 
 namespace net::http {
 
@@ -13,11 +16,9 @@ class route {
         string value;
         bool is_param;
 
-        _segment(string val)
-            : value(std::move(val)),
-              is_param(!value.empty() && value[0] == ':') {}
+        _segment(string val) : value(std::move(val)), is_param(!value.empty() && value[0] == ':') {}
 
-        bool is_match(const string &path_segment) const {
+        bool is_match(const string& path_segment) const {
             return is_param || value == path_segment;
         }
 
@@ -28,7 +29,7 @@ class route {
         string original_path;
         list<_segment> segments;
 
-        static _pattern from_string(const string &path) {
+        static _pattern from_string(const string& path) {
             _pattern p;
             p.original_path = path;
 
@@ -44,7 +45,7 @@ class route {
             return p;
         }
 
-        bool match(const string &input_path, string_map &out_params) const {
+        bool match(const string& input_path, string_map& out_params) const {
             std::stringstream ss(input_path);
             string part;
             list<string> input_segments;
@@ -59,8 +60,8 @@ class route {
                 return false;
 
             for (size_t i = 0; i < segments.size(); ++i) {
-                const auto &seg   = segments[i];
-                const auto &input = input_segments[i];
+                const auto& seg   = segments[i];
+                const auto& input = input_segments[i];
 
                 if (!seg.is_match(input))
                     return false;
@@ -80,4 +81,4 @@ class route {
 using route_segment = route::_segment;
 using route_pattern = route::_pattern;
 
-} // namespace http
+} // namespace net::http

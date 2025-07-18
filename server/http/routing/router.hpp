@@ -1,15 +1,15 @@
 #pragma once
 #include <utils/string>
-#include "route.hpp"
 #include "../http_request.hpp"
 #include "../http_response.hpp"
+#include "route.hpp"
 
 namespace net::http {
 
 class router {
   public:
-    bool route_request(request &req, response &res) {
-        for (const auto &entry : routes) {
+    bool route_request(request& req, response& res) {
+        for (const auto& entry : routes) {
             if (!entry.method.equals(req.http_method))
                 continue;
             string_map params;
@@ -23,9 +23,7 @@ class router {
         return false;
     }
 
-    void register_route(
-        method method, const std::string &path, route_handler handler
-    ) {
+    void register_route(method method, const std::string& path, route_handler handler) {
         routes.push_back({route_pattern::from_string(path), method, handler});
     }
 
@@ -35,4 +33,4 @@ class router {
     route_map post_routes;
 };
 
-} // namespace http
+} // namespace net::http

@@ -1,6 +1,6 @@
 #pragma once
-#include <utils/string>
 #include <utils/macros>
+#include <utils/string>
 
 namespace net::http {
 
@@ -19,14 +19,13 @@ struct status {
 
 #ifdef _DEBUG
 struct status_debug_view {
-    const int &code;
-    const string &message;
+    const int& code;
+    const string& message;
     string full_text;
 
-    status_debug_view(const status &status)
-        : code(status.code), message(status.message),
-          full_text(status.to_string()) {}
+    status_debug_view(const status& status)
+        : code(status.code), message(status.message), full_text(status.to_string()) {}
 };
 #endif
 
-} // namespace http
+} // namespace net::http

@@ -1,8 +1,11 @@
 #pragma once
+// std
 #include <iostream>
-#include <string>
 #include <mutex>
 #include <stdexcept>
+#include <string>
+
+// libs
 #include "net_endpoint.hpp"
 
 using string = std::string;
@@ -16,10 +19,7 @@ static std::pair<string, uint32_t> any_addr =
 
 enum class protocol : int { TCP = IPPROTO_TCP, UDP = IPPROTO_UDP };
 
-enum class address_family : unsigned short {
-    IPv4 = AF_INET,
-    IPv6 = AF_INET6
-};
+enum class address_family : unsigned short { IPv4 = AF_INET, IPv6 = AF_INET6 };
 
 class socket {
   public:
@@ -29,26 +29,24 @@ class socket {
 
     socket(int port) : socket("", port) {}
 
-    socket(const string &ip, int port)
-        : socket(protocol::TCP, ip, port) {}
+    socket(const string& ip, int port) : socket(protocol::TCP, ip, port) {}
 
-    socket(protocol protocol, const string &ip = "", int port = 3154)
+    socket(protocol protocol, const string& ip = "", int port = 3154)
         : _ep(ip.empty() ? any_addr.first : ip, port), _socket(INVALID_SOCKET) {
         pre_init();
 
         int type = protocol == protocol::TCP ? SOCK_STREAM : SOCK_DGRAM;
 
-        _socket = ::socket(AF_INET, type, (int)protocol);
+        _socket  = ::socket(AF_INET, type, (int)protocol);
 
         if (_socket == INVALID_SOCKET)
             throw std::runtime_error("Socket creation failed.");
     }
 
-    socket(const socket &s)
-        : non_blocking(s.non_blocking), _socket(s._socket), _ep(s._ep),
-          bound(s.bound) {}
+    socket(const socket& s)
+        : non_blocking(s.non_blocking), _socket(s._socket), _ep(s._ep), bound(s.bound) {}
 
-    socket &operator=(const socket &s) {
+    socket& operator=(const socket& s) {
         non_blocking = s.non_blocking;
         _socket      = s._socket;
         _ep          = s._ep;
@@ -56,28 +54,25 @@ class socket {
         return *this;
     }
 
-    socket(socket &&other) noexcept
-        : _socket(other._socket), _ep(std::move(other._ep)) {
+    socket(socket&& other) noexcept : _socket(other._socket), _ep(std::move(other._ep)) {
         other._socket = INVALID_SOCKET;
     }
 
-    socket &operator=(socket &&other) noexcept {
+    socket& operator=(socket&& other) noexcept {
         if (this != &other) {
             ::closesocket(_socket);
             _socket       = other._socket;
             other._socket = INVALID_SOCKET;
 
-            _ep = std::move(other._ep);
+            _ep           = std::move(other._ep);
         }
 
         return *this;
     }
 
-    bool operator==(const SOCKET &rhs) { return this->_socket == rhs; }
+    bool operator==(const SOCKET& rhs) { return this->_socket == rhs; }
 
-    bool operator==(const socket &rhs) {
-        return this->_socket == rhs._socket;
-    }
+    bool operator==(const socket& rhs) { return this->_socket == rhs._socket; }
 
     ~socket() {}
 
@@ -88,7 +83,7 @@ class socket {
         return ::bind(_socket, _ep.get_sockaddr(), _ep.size()) != SOCKET_ERROR;
     }
 
-    bool listen(const string &ip, int port) {
+    bool listen(const string& ip, int port) {
         if (!ip.empty())
             _ep.ip_ = ip;
 
@@ -122,21 +117,17 @@ class socket {
 
     socket accept() {
         ip_endpoint ep;
-        socket client =
-            ::accept(_socket, ep.get_sockaddr(), ep.get_len_ptr());
+        socket client = ::accept(_socket, ep.get_sockaddr(), ep.get_len_ptr());
         if (client == INVALID_SOCKET) {
-            std::cerr << "Accept failed: " << net::get_socket_error()
-                      << std::endl;
+            std::cerr << "Accept failed: " << net::get_socket_error() << std::endl;
             return socket();
         }
 
         return client;
     }
 
-    void write(const string &message) {
-        int sent = ::send(
-            _socket, message.c_str(), static_cast<int>(message.size()), 0
-        );
+    void write(const string& message) {
+        int sent = ::send(_socket, message.c_str(), static_cast<int>(message.size()), 0);
         std::cout << "Sent " << sent << " bytes to the socket" << std::endl;
     }
 
@@ -151,16 +142,16 @@ class socket {
         return string(buffer);
     }
 
-    int read(char *str) {
+    int read(char* str) {
         constexpr size_t buffer_size = 8192;
         char buffer[buffer_size];
         int bytes_read = ::recv(_socket, buffer, buffer_size, 0);
 
-        str = buffer;
+        str            = buffer;
         return bytes_read;
     }
 
-    int read(string &out) {
+    int read(string& out) {
         constexpr size_t buffer_size = 8192;
         char buffer[buffer_size];
         int bytes_read = ::recv(_socket, buffer, buffer_size, 0);
@@ -189,7 +180,7 @@ class socket {
         return ip + ":" + std::to_string(port);
     }
 
-    operator const SOCKET &() const { return _socket; }
+    operator const SOCKET&() const { return _socket; }
 
     socket(SOCKET sock) : _socket(sock), _ep() {
         pre_init();
@@ -200,40 +191,32 @@ class socket {
 
         sockaddr_in local_addr;
         int local_len = sizeof(local_addr);
-        if (getsockname(_socket, (sockaddr *)&local_addr, &local_len) == 0) {
+        if (getsockname(_socket, (sockaddr*)&local_addr, &local_len) == 0) {
             char local_ip[INET_ADDRSTRLEN];
-            inet_ntop(
-                AF_INET, &(local_addr.sin_addr), local_ip, INET_ADDRSTRLEN
-            );
+            inet_ntop(AF_INET, &(local_addr.sin_addr), local_ip, INET_ADDRSTRLEN);
 
             local = local_ip;
         } else {
-            std::cerr << "getsockname failed: " << net::get_socket_error()
-                      << std::endl;
+            std::cerr << "getsockname failed: " << net::get_socket_error() << std::endl;
             local_error = true;
         }
 
         sockaddr_in remote_addr;
         int remote_len = sizeof(remote_addr);
-        if (getpeername(_socket, (sockaddr *)&remote_addr, &remote_len) == 0) {
+        if (getpeername(_socket, (sockaddr*)&remote_addr, &remote_len) == 0) {
             char remote_ip[INET_ADDRSTRLEN];
-            inet_ntop(
-                AF_INET, &(remote_addr.sin_addr), remote_ip, INET_ADDRSTRLEN
-            );
+            inet_ntop(AF_INET, &(remote_addr.sin_addr), remote_ip, INET_ADDRSTRLEN);
 
             remote = remote_ip;
         } else {
-            std::cerr << "getpeername failed: " << net::get_socket_error()
-                      << std::endl;
+            std::cerr << "getpeername failed: " << net::get_socket_error() << std::endl;
             remote_error = true;
         }
 
         _ep.set(remote, remote_addr.sin_port);
     }
 
-    const static SOCKET const to_socket(const socket &s) {
-        return static_cast<SOCKET>(s);
-    }
+    const static SOCKET const to_socket(const socket& s) { return static_cast<SOCKET>(s); }
 
   private:
     SOCKET _socket;
@@ -262,4 +245,3 @@ class socket {
 };
 
 } // namespace net
-

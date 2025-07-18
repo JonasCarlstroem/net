@@ -1,10 +1,12 @@
 #pragma once
+// std
 #include <iostream>
-#include <net/socket>
+
+// lib
 #include <net/socket_registry>
-#include "routing/router.hpp"
 #include "http_request.hpp"
 #include "http_response.hpp"
+#include "routing/router.hpp"
 
 namespace net::http {
 
@@ -12,15 +14,14 @@ class connection_handler {
     friend class server;
 
   public:
-    connection_handler(net::sock_ptr socket, router &r)
-        : client_socket(socket), r(r) {}
+    connection_handler(net::sock_ptr socket, router& r) : client_socket(socket), r(r) {}
 
     ~connection_handler() {
         if (client_socket->is_valid())
             client_socket->close();
     }
 
-    void handle(const string &request_text) {
+    void handle(const string& request_text) {
         response res;
         try {
             request req = request::parse(request_text);
@@ -28,7 +29,7 @@ class connection_handler {
             if (!r.route_request(req, res)) {
                 res.set_status(404, "Not Found");
             }
-        } catch (const std::exception &ex) {
+        } catch (const std::exception& ex) {
             res.set_status(500, "Internal server error");
         }
 
@@ -37,9 +38,9 @@ class connection_handler {
 
   private:
     net::sock_ptr client_socket;
-    router &r;
+    router& r;
 
-    bool parse_http_request(const string &text, request &req) {
+    bool parse_http_request(const string& text, request& req) {
         std::istringstream stream(text);
         string line;
 
@@ -64,8 +65,8 @@ class connection_handler {
             string header_name  = line.substr(0, colon_pos);
             string header_value = line.substr(colon_pos + 1);
 
-            while (!header_value.empty() && (header_value.front() == ' ' ||
-                                             header_value.front() == '\t'))
+            while (!header_value.empty() &&
+                   (header_value.front() == ' ' || header_value.front() == '\t'))
                 header_value.erase(header_value.begin());
 
             req.headers[header_name] = header_value;
@@ -85,4 +86,4 @@ class connection_handler {
     }
 };
 
-} // namespace http
+} // namespace net::http

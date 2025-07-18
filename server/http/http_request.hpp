@@ -1,8 +1,11 @@
 #pragma once
+// std
+#include <sstream>
+
+// lib
+#include <utils/string>
 #include "http_method.hpp"
 #include "http_types.hpp"
-#include <sstream>
-#include <utils/string>
 
 namespace net::http {
 
@@ -25,9 +28,7 @@ struct request {
         return it != headers.end() ? it->second : "";
     }
 
-    string get_body_as_string() const {
-        return string(body.begin(), body.end());
-    }
+    string get_body_as_string() const { return string(body.begin(), body.end()); }
 
     static request parse(const string& raw) {
         request req;
@@ -61,9 +62,7 @@ struct request {
         string version;
 
         std::tuple<string&&, string&&, string&&> operator()() {
-            return std::make_tuple(
-                std::move(method), std::move(full_path), std::move(version)
-            );
+            return std::make_tuple(std::move(method), std::move(full_path), std::move(version));
         }
     };
 
@@ -80,10 +79,8 @@ struct request {
         string_map query_params;
 
         std::tuple<string&&, string&&, string_map&&> operator()() {
-            return std::make_tuple(
-                std::move(path), std::move(query_string),
-                std::move(query_params)
-            );
+            return std::make_tuple(std::move(path), std::move(query_string),
+                                   std::move(query_params));
         }
     };
 
@@ -99,9 +96,7 @@ struct request {
         return *this;
     }
 
-    void set_body(string content) {
-        body = list<char>(content.begin(), content.end());
-    }
+    void set_body(string content) { body = list<char>(content.begin(), content.end()); }
 
     void set_control_data(control_data&& data) {}
 

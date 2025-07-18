@@ -1,6 +1,9 @@
 #pragma once
-#include <mutex>
+// std
 #include <algorithm>
+#include <mutex>
+
+// lib
 #include "net_socket.hpp"
 
 namespace net {
@@ -9,7 +12,7 @@ class socket_set {
   public:
     socket_set() { FD_ZERO(&fds_); }
 
-    void add(const socket &s) {
+    void add(const socket& s) {
         std::lock_guard lock(mutex_);
         add(to_socket(s));
     }
@@ -21,7 +24,7 @@ class socket_set {
         }
     }
 
-    void remove(const socket &s) {
+    void remove(const socket& s) {
         std::lock_guard lock(mutex_);
         SOCKET raw = to_socket(s);
         FD_CLR(raw, &fds_);
@@ -55,9 +58,7 @@ class socket_set {
     SOCKET get(int index) const {
         std::lock_guard lock(mutex_);
         return index < 0 || index > fds_.fd_count
-                   ? throw std::out_of_range(
-                         "Index was outside the bounds of the array."
-                     )
+                   ? throw std::out_of_range("Index was outside the bounds of the array.")
                    : fds_.fd_array[index];
     }
 
@@ -65,26 +66,24 @@ class socket_set {
         int result = ::select(0, &fds_, nullptr, nullptr, nullptr);
         if (result == SOCKET_ERROR) {
             net::socket_error err = net::get_socket_error();
-            std::cerr << "[select] failed: " << err.message
-                      << ", error code: " << err.error_code << std::endl;
+            std::cerr << "[select] failed: " << err.message << ", error code: " << err.error_code
+                      << std::endl;
         }
         return result;
     }
 
-    fd_set &raw() { return fds_; }
+    fd_set& raw() { return fds_; }
 
-    operator const fd_set &() { return fds_; }
+    operator const fd_set&() { return fds_; }
 
-    fd_set *operator&() { return &fds_; }
+    fd_set* operator&() { return &fds_; }
 
   private:
-    socket_set(const fd_set &set) : fds_(set) {}
+    socket_set(const fd_set& set) : fds_(set) {}
 
-    socket_set(const socket_set &set) : fds_(set.fds_) {}
+    socket_set(const socket_set& set) : fds_(set.fds_) {}
 
-    SOCKET to_socket(const socket &s) const {
-        return static_cast<SOCKET>(s);
-    }
+    SOCKET to_socket(const socket& s) const { return static_cast<SOCKET>(s); }
 
     bool contains_nolock(SOCKET s) const {
         for (u_int i = 0; i < fds_.fd_count; ++i) {

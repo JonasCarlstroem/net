@@ -1,42 +1,16 @@
 #pragma once
+// std
 #include <iostream>
 #include <string>
+
+// libs
 #include <utils/net>
-#define IS_NULL(ptr) ptr == nullptr
-#define IS_IP_NULL IS_NULL(ip_ptr_)
-#define IS_PORT_NULL IS_NULL(port_ptr_)
-#define IS_PTR_NULL IS_NULL(ptr_)
 
 using string = std::string;
 
 namespace net {
 
-template <typename TPtr>
-class base_ptr {
-    bool is_manual = false;
-    TPtr* ptr_;
-
-  protected:
-    base_ptr() : ptr_(nullptr) { manual_ptr(); }
-    explicit base_ptr(TPtr* ptr) : ptr_(ptr) {}
-
-    ~base_ptr() {
-        if (is_manual) {
-            delete ptr_;
-        }
-    }
-
-    void manual_ptr() {
-        if (IS_PTR_NULL) {
-            ptr_      = new TPtr();
-            is_manual = true;
-        }
-    }
-
-    TPtr* get_ptr() const { return ptr_; }
-};
-
-class ip_address /* : protected base_ptr<uint32_t> */ {
+class ip_address {
     friend class ip_endpoint;
 
   public:
@@ -56,44 +30,8 @@ class ip_address /* : protected base_ptr<uint32_t> */ {
     }
 };
 
-class ip_port : protected base_ptr<uint16_t> {
-    friend class ip_endpoint;
-
-  public:
-    ip_port() : base_ptr() {}
-
-    explicit ip_port(uint16_t* val) : base_ptr(val) {
-        if (*val > 65535)
-            throw std::out_of_range("Invalid port number");
-    }
-
-    const ip_port& operator=(int port) {
-        set(port);
-        return *this;
-    }
-
-    const ip_port& operator=(uint16_t port) {
-        set(port);
-        return *this;
-    }
-
-    uint16_t value() const { return ntohs(*get_ptr()); }
-
-    void set(uint16_t val) { *get_ptr() = htons(val); }
-
-    uint16_t raw() { return *get_ptr(); }
-
-    operator const int() const { return value(); }
-
-    bool operator==(const ip_port& other) const { return *get_ptr() == *other.get_ptr(); }
-
-    operator const uint16_t&() const { return *get_ptr(); }
-};
-
 class ip_endpoint {
     friend class socket;
-    // friend ip_address;
-    friend ip_port;
 
     sockaddr_in saddr_;
     string ip_;

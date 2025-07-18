@@ -1,15 +1,17 @@
 #pragma once
-
+// std
 #include <queue>
+#include <types>
 #include <unordered_map>
 #include <unordered_set>
-#include <types>
-#include "net_socket.hpp"
+
+// lib
 #include "net_socket_set.hpp"
 
 namespace net {
 
-template <typename T> using uni_ptr = std::unique_ptr<T>;
+template <typename T>
+using uni_ptr  = std::unique_ptr<T>;
 
 using sock_ptr = std::shared_ptr<socket>;
 
@@ -52,7 +54,7 @@ class socket_registry {
         return out;
     }
 
-    sock_ptr create_socket(const string &ip = "", int port = 0) {
+    sock_ptr create_socket(const string& ip = "", int port = 0) {
         sock_ptr ptr = std::make_shared<socket>(ip, port);
         SOCKET raw   = socket::to_socket(*ptr);
         sockets_.emplace(raw, ptr);
@@ -112,7 +114,7 @@ class socket_registry {
     }
 
     void clear() {
-        for (auto &[s, sock] : sockets_) {
+        for (auto& [s, sock] : sockets_) {
             sock->close();
         }
         sockets_.clear();
