@@ -14,3 +14,16 @@ add_subdirectory(dns)
 add_library(server INTERFACE)
 
 target_link_libraries(server INTERFACE http)
+
+install(TARGETS server
+		EXPORT serverTargets
+		LIBRARY DESTINATION server
+		ARCHIVE DESTINATION server
+		INCLUDES DESTINATION include)
+
+install(DIRECTORY include/ DESTINATION include)
+
+install(EXPORT serverTargets
+		FILE serverTargets.cmake
+		NAMESPACE server::
+		DESTINATION lib/cmake/server)
