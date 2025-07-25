@@ -1,11 +1,11 @@
 #pragma once
 // std
 #include <sstream>
-#include <types>
 
 // lib
-#include <utils/string>
-#include "http_status.hpp"
+#include <types.h>
+#include <utils/string.h>
+#include "status.h"
 
 using json = nlohmann::json;
 

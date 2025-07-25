@@ -1,6 +1,6 @@
 #pragma once
-#include <utils/macros>
-#include <utils/string>
+#include <utils/macros.h>
+#include <utils/string.h>
 
 namespace net::http {
 

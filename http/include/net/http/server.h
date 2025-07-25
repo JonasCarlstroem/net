@@ -8,8 +8,8 @@
 #include <unordered_set>
 
 // lib
-#include <threading/thread_pool>
-#include "http_connection_handler.hpp"
+#include <threading/thread_pool.h>
+#include "connection_handler.h"
 
 namespace net::http {
 

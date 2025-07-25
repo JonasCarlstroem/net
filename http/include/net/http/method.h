@@ -4,8 +4,8 @@
 #include <map>
 
 // lib
-#include <utils/string>
-#include "http_types.hpp"
+#include <utils/string.h>
+#include "http_types.h"
 
 namespace net::http {
 

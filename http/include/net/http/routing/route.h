@@ -1,12 +1,12 @@
 #pragma once
 // std
 #include <sstream>
-#include <types>
 
 // lib
-#include <utils/net>
-#include "../http_method.hpp"
-#include "../http_types.hpp"
+#include <types.h>
+#include <utils/net.h>
+#include "../method.h"
+#include "../http_types.h"
 
 namespace net::http {
 

@@ -1,12 +1,12 @@
 #pragma once
 // std
 #include <queue>
-#include <types>
 #include <unordered_map>
 #include <unordered_set>
 
 // lib
-#include "net_socket_set.hpp"
+#include <types.h>
+#include "socket_set.h"
 
 namespace net {
 

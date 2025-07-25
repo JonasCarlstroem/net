@@ -3,9 +3,9 @@
 #include <sstream>
 
 // lib
-#include <utils/string>
-#include "http_method.hpp"
-#include "http_types.hpp"
+#include <utils/string.h>
+#include "method.h"
+#include "http_types.h"
 
 namespace net::http {
 

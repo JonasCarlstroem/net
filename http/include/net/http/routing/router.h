@@ -1,8 +1,8 @@
 #pragma once
-#include <utils/string>
-#include "../http_request.hpp"
-#include "../http_response.hpp"
-#include "route.hpp"
+#include <utils/string.h>
+#include "../request.h"
+#include "../response.h"
+#include "route.h"
 
 namespace net::http {
 

@@ -3,10 +3,10 @@
 #include <iostream>
 
 // lib
-#include <net/socket_registry>
-#include "http_request.hpp"
-#include "http_response.hpp"
-#include "routing/router.hpp"
+#include <net/socket_registry.h>
+#include "request.h"
+#include "response.h"
+#include "routing/router.h"
 
 namespace net::http {
 

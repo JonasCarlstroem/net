@@ -5,19 +5,14 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_BUILD_TYPE Debug)
 
-add_library(socket INTERFACE)
+#add_library(socket INTERFACE)
+CREATE_LIB(socket INTERFACE)
 
 target_compile_features(socket INTERFACE cxx_std_17)
 
-install(TARGETS socket
-		EXPORT socketTargets
-		LIBRARY DESTINATION socket
-		ARCHIVE DESTINATION socket
-		INCLUDES DESTINATION include)
+target_include_directories(socket INTERFACE
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+	$<INSTALL_INTERFACE:include/net/socket>
+)
 
-install(DIRECTORY include/ DESTINATION include)
-
-install(EXPORT socketTargets
-		FILE socketTargets.cmake
-		NAMESPACE socket::
-		DESTINATION lib/cmake/socket)
+INSTALL_LIB(socket True net/socket)

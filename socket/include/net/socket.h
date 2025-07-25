@@ -6,7 +6,7 @@
 #include <string>
 
 // libs
-#include "net_endpoint.hpp"
+#include "endpoint.h"
 
 using string = std::string;
 
